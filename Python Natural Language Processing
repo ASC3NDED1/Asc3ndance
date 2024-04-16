@@ -1,0 +1,19 @@
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.probability import FreqDist
+
+# Sample text
+text = "Natural Language Processing (NLP) is a subfield of artificial intelligence."
+
+# Tokenization
+tokens = word_tokenize(text)
+
+# Remove stopwords
+stop_words = set(stopwords.words('english'))
+filtered_tokens = [word for word in tokens if word.lower() not in stop_words]
+
+# Frequency distribution
+fdist = FreqDist(filtered_tokens)
+print("Word Frequency Distribution:")
+print(fdist.most_common())
