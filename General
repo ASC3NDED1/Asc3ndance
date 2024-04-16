@@ -1,0 +1,50 @@
+
+import requests
+
+class GitHubAPI:
+    def __init__(self, username, repository):
+        self.username = username
+        self.repository = repository
+        self.base_url = f"https://api.github.com/repos/{username}/{repository}"
+
+    def get_issues(self):
+        """
+        Retrieve a list of open issues from the GitHub repository.
+        """
+        url = f"{self.base_url}/issues"
+        response = requests.get(url)
+        if response.status_code == 200:
+            issues = response.json()
+            return issues
+        else:
+            print(f"Failed to retrieve issues: {response.status_code}")
+            return []
+
+    def create_issue(self, title, body):
+        """
+        Create a new issue in the GitHub repository.
+        """
+        url = f"{self.base_url}/issues"
+        data = {"title": title, "body": body}
+        response = requests.post(url, json=data)
+        if response.status_code == 201:
+            print("Issue created successfully.")#
+        else:
+            print(f"Failed to create issue: {response.status_code}")
+
+if __name__ == "__main__":
+    # Example usage
+    username = "your_username"
+    repository = "your_repository"
+    api = GitHubAPI(username, repository)
+
+    # Retrieve issues
+    issues = api.get_issues()
+    print("Open Issues:")
+    for issue in issues:
+        print(f"- {issue['title']}")
+
+    # Create a new issue
+    issue_title = "Test Issue"
+    issue_body = "This is a test issue created using the GitHubAPI class."
+    api.create_issue(issue_title, issue_body)
