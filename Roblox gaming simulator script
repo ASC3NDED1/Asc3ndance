@@ -1,0 +1,45 @@
+-- Configuration
+local COIN_VALUE = 10
+local UPGRADE_COST = 100
+local MAX_HEALTH = 100
+local MAX_SPEED = 50
+
+-- Create the game data
+local gameData = {
+    coins = {},
+    players = {},
+}
+
+-- Function to handle player joining
+local function onPlayerJoined(player)
+    gameData.players[player] = {
+        coins = 0,
+        health = MAX_HEALTH,
+        speed = 16,
+    }
+end
+
+-- Function to handle coin collection
+local function onCoinTouched(coin, player)
+    if coin.Parent == workspace and gameData.coins[coin] then
+        gameData.players[player].coins = gameData.players[player].coins + COIN_VALUE
+        coin:Destroy()
+        gameData.coins[coin] = nil
+    end
+end
+
+-- Function to handle player upgrading
+local function upgradePlayer(player)
+    if gameData.players[player].coins >= UPGRADE_COST then
+        gameData.players[player].coins = gameData.players[player].coins - UPGRADE_COST
+        gameData.players[player].health = math.min(gameData.players[player].health + 20, MAX_HEALTH)
+        gameData.players[player].speed = math.min(gameData.players[player].speed + 5, MAX_SPEED)
+    end
+end
+
+-- Connect events
+game.Players.PlayerAdded:Connect(onPlayerJoined)
+
+game.Workspace.Coins.Touched:Connect(function(coin) onCoinTouched(coin, game.Players:GetPlayerFromCharacter(coin.Parent)) end)
+
+game.ReplicatedStorage.UpgradePlayer.OnServerInvoke = upgradePlayer
