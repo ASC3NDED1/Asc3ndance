@@ -1,0 +1,21 @@
+
+import asyncio
+
+async def greet(name):
+    """
+    Asynchronous function to greet a person after a delay.
+    """
+    print(f"Hello, {name}!")
+    await asyncio.sleep(1)
+    print(f"Goodbye, {name}!")
+
+async def main():
+    """
+    Main asynchronous function to run multiple greetings concurrently.
+    """
+    tasks = [greet("Alice"), greet("Bob")]
+    await asyncio.gather(*tasks)
+
+if __name__ == "__main__":
+    # Run the main asynchronous function
+    asyncio.run(main())
