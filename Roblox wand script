@@ -1,0 +1,42 @@
+-- Create the wand tool
+local tool = Instance.new("Tool")
+tool.Name = "Wand"
+tool.RequiresHandle = false
+
+-- Add a custom wand model (you can replace this with your own model)
+local handle = Instance.new("Part")
+handle.Name = "Handle"
+handle.Size = Vector3.new(1, 5, 1)
+handle.BrickColor = BrickColor.new("Bright yellow")
+handle.Parent = tool
+
+-- Function to shoot a projectile
+local function shootProjectile(player)
+    -- Create the projectile
+    local projectile = Instance.new("Part")
+    projectile.Size = Vector3.new(1, 1, 5)
+    projectile.Color = Color3.new(1, 0, 0) -- Red color
+    projectile.Position = player.Character.Head.Position + player.Character.Head.CFrame.LookVector * 2
+    projectile.Velocity = player.Character.Head.CFrame.LookVector * 50
+    projectile.Parent = workspace
+
+    -- Destroy the projectile after 3 seconds
+    game:GetService("Debris"):AddItem(projectile, 3)
+end
+
+-- Function to handle tool activation
+local function onActivated()
+    local player = game.Players:GetPlayerFromCharacter(tool.Parent)
+    if player then
+        shootProjectile(player)
+    end
+end
+
+-- Connect the onActivated function to the tool's Activated event
+tool.Activated:Connect(onActivated)
+
+-- Give the tool to players when they join the game
+game.Players.PlayerAdded:Connect(function(player)
+    local clone = tool:Clone()
+    clone.Parent = player.Backpack
+end)
