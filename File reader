@@ -1,0 +1,20 @@
+# Read from a file
+def read_file(filename):
+    try:
+        with open(filename, 'r') as file:
+            content = file.read()
+            return content
+    except FileNotFoundError:
+        return f"File '{filename}' not found."
+
+# Write to a file
+def write_file(filename, content):
+    with open(filename, 'w') as file:
+        file.write(content)
+    return f"Content written to '{filename}' successfully."
+
+# Example usage
+file_content = read_file('example.txt')
+print(file_content)
+
+write_file('new_file.txt', 'This is some new content.')
