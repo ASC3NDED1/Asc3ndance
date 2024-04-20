@@ -1,0 +1,55 @@
+import random
+
+class Wand:
+    def __init__(self, owner):
+        self.owner = owner
+    
+    def cast_duro(self, target):
+        print(f"{self.owner} casts Duro on {target}!")
+        print(f"{target} turns to stone.")
+
+    def cast_avada_kedavra(self, target):
+        print(f"{self.owner} casts Avada Kedavra on {target}!")
+        print(f"{target} drops dead.")
+
+    def cast_bombarda(self, target):
+        print(f"{self.owner} casts Bombarda on {target}!")
+        print(f"{target} explodes.")
+
+    def cast_glacius(self, target):
+        print(f"{self.owner} casts Glacius on {target}!")
+        print(f"{target} freezes solid.")
+
+    def cast_depulso(self, target):
+        print(f"{self.owner} casts Depulso on {target}!")
+        print(f"{target} is knocked over.")
+
+    def cast_evanesco(self, target):
+        print(f"{self.owner} casts Evanesco on {target}!")
+        print(f"{target} disappears.")
+
+    def cast_levicorpus(self, target):
+        print(f"{self.owner} casts Levicorpus on {target}!")
+        print(f"{target} is lifted upside down.")
+
+    def cast_incarcerous(self, target):
+        print(f"{self.owner} casts Incarcerous on {target}!")
+        print(f"{target} is bound with ropes.")
+
+    def cast_confringo(self, target):
+        print(f"{self.owner} casts Confringo on the ground around {target}!")
+        print(f"Explosion occurs around {target}.")
+
+# Example Usage:
+if __name__ == "__main__":
+    wand = Wand("Harry Potter")
+    spells = [
+        "duro", "avada kedavra", "bombarda", 
+        "glacius", "depulso", "evanesco", 
+        "levicorpus", "incarcerous", "confringo"
+    ]
+    target = "Voldemort"  # Example target
+
+    for _ in range(5):  # Cast 5 random spells
+        spell = random.choice(spells)
+        getattr(wand, f"cast_{spell}")(target)
