@@ -1,0 +1,229 @@
+import random
+import json
+
+class Character:
+    def __init__(self, name, health=100, attack=10):
+        self.name = name
+        self.health = health
+        self.attack = attack
+        self.defense = 5
+        self.level = 1
+        self.exp = 0
+        self.max_health = health
+        self.inventory = {'gold': 50, 'potions': 3}
+        self.quests = []
+    
+    def take_damage(self, damage):
+        actual_damage = max(damage - self.defense, 0)
+        self.health -= actual_damage
+        if self.health <= 0:
+            print(f"{self.name} has been defeated!")
+    
+    def attack_enemy(self, enemy):
+        damage = random.randint(self.attack // 2, self.attack)
+        print(f"{self.name} attacks {enemy.name} and deals {damage} damage!")
+        enemy.take_damage(damage)
+
+    def gain_experience(self, exp):
+        self.exp += exp
+        print(f"{self.name} gains {exp} experience points!")
+        if self.exp >= self.level * 100:
+            self.level_up()
+
+    def level_up(self):
+        self.level += 1
+        self.attack += 5
+        self.defense += 2
+        self.max_health += 20
+        self.health = self.max_health
+        print(f"{self.name} leveled up to level {self.level}!")
+    
+    def use_potion(self):
+        if self.inventory['potions'] > 0:
+            self.health = min(self.health + 20, self.max_health)
+            self.inventory['potions'] -= 1
+            print(f"{self.name} uses a potion and gains 20 health!")
+        else:
+            print("No potions left!")
+    
+    def visit_shop(self):
+        print("Welcome to the shop!")
+        print("Available items:")
+        print("1. Potion (20 gold) - Restores 20 health")
+        print("2. Sword (50 gold) - Increases attack damage")
+        print("3. Armor (50 gold) - Increases defense")
+        choice = input("Enter the item number you want to buy (or press Enter to exit): ")
+        if choice == '1':
+            self.buy_item('potion', 20, 'health', 20)
+        elif choice == '2':
+            self.buy_item('sword', 50, 'attack', 10)
+        elif choice == '3':
+            self.buy_item('armor', 50, 'defense', 5)
+        else:
+            print("Exiting shop.")
+
+    def buy_item(self, item_name, cost, attribute, value):
+        if self.inventory['gold'] >= cost:
+            self.inventory['gold'] -= cost
+            if attribute == 'health':
+                self.max_health += value
+                self.health += value
+                print(f"{self.name} bought a potion and gained {value} health!")
+            elif attribute == 'attack':
+                self.attack += value
+                print(f"{self.name} bought a sword and increased attack by {value}!")
+            elif attribute == 'defense':
+                self.defense += value
+                print(f"{self.name} bought armor and increased defense by {value}!")
+        else:
+            print("Not enough gold!")
+
+class Enemy(Character):
+    def __init__(self, name, health, attack, exp_reward):
+        super().__init__(name, health, attack)
+        self.exp_reward = exp_reward
+
+class Quest:
+    def __init__(self, name, description, reward_exp):
+        self.name = name
+        self.description = description
+        self.reward_exp = reward_exp
+        self.completed = False
+    
+    def complete_quest(self):
+        self.completed = True
+        print(f"Quest '{self.name}' completed! You gain {self.reward_exp} experience.")
+
+def save_game_state(player):
+    with open('game_state.json', 'w') as file:
+        data = {
+            'player_name': player.name,
+            'player_health': player.health,
+            'player_attack': player.attack,
+            'player_defense': player.defense,
+            'player_level': player.level,
+            'player_exp': player.exp,
+            'player_max_health': player.max_health,
+            'player_inventory': player.inventory,
+            'player_quests': [quest.name for quest in player.quests if not quest.completed]
+        }
+        json.dump(data, file)
+    print("Game state saved successfully.")
+
+def load_game_state():
+    try:
+        with open('game_state.json', 'r') as file:
+            data = json.load(file)
+            player = Player(data['player_name'])
+            player.health = data['player_health']
+            player.attack = data['player_attack']
+            player.defense = data['player_defense']
+            player.level = data['player_level']
+            player.exp = data['player_exp']
+            player.max_health = data['player_max_health']
+            player.inventory = data['player_inventory']
+            # Restore player quests
+            player.quests = [Quest(name, "Description", 100) for name in data['player_quests']]
+        print("Game state loaded successfully.")
+        return player
+    except FileNotFoundError:
+        print("No saved game state found.")
+        return None
+
+def main():
+    print("Welcome to the Adventure Game!\n")
+    
+    choice = input("Do you want to start a new game (N) or load a saved game (L)? ").upper()
+    
+    if choice == 'N':
+        player_name = input("Enter your character's name: ")
+        player = Player(player_name)
+    elif choice == 'L':
+        player = load_game_state()
+        if player is None:
+            print("Starting a new game instead.")
+            player_name = input("Enter your character's name: ")
+            player = Player(player_name)
+    else:
+        print("Invalid choice. Starting a new game.")
+        player_name = input("Enter your character's name: ")
+        player = Player(player_name)
+    
+    # Define available quests
+    quests = [
+        Quest("Defeat 3 Goblins", "Defeat 3 goblins terrorizing the village", reward_exp=50),
+        Quest("Retrieve Magic Crystal", "Find and retrieve the lost magic crystal", reward_exp=100),
+        Quest("Explore the Dungeon", "Explore the mysterious dungeon and uncover its secrets", reward_exp=150)
+    ]
+    player.quests.extend(quests)  # Assign quests to player
+    
+    enemies = [
+        Enemy("Evil Goblin", health=50, attack=8, exp_reward=20),
+        Enemy("Skeleton Warrior", health=70, attack=12, exp_reward=30),
+        Enemy("Dragon", health=150, attack=20, exp_reward=50)
+    ]
+    
+    while player.health > 0:
+        print(f"\n{player.name}'s Health: {player.health}/{player.max_health}")
+        
+        print("Available Actions:")
+        print("1. Attack an enemy")
+        print("2. Use a potion")
+        print("3. Visit the shop")
+        print("4. View quests")
+        print("5. Save game")
+        print("6. Exit game")
+        
+        action = input("Choose your action (1/2/3/4/5/6): ")
+        
+        if action == '1':
+            # Select a random enemy to attack
+            enemy = random.choice(enemies)
+            player.attack_enemy(enemy)
+            if enemy.health <= 0:
+                print(f"{enemy.name} has been defeated!")
+                player.gain_experience(enemy.exp_reward)
+                # Simulate item drops (gold, potions, etc.)
+                if random.random() < 0.3:  # 30% chance of dropping a potion
+                    player.inventory['potions'] += 1
+                    print("You found a potion!")
+        elif action == '2':
+            player.use_potion()
+        elif action == '3':
+            player.visit_shop()
+        elif action == '4':
+            print("Current Quests:")
+            for quest in player.quests:
+                status = "Completed" if quest.completed else "Incomplete"
+                print(f"- {quest.name}: {quest.description} [{status}]")
+        elif action == '5':
+            save_game_state(player)
+        elif action == '6':
+            print("Exiting game...")
+            break
+        else:
+            print("Invalid action. Choose again.")
+        
+        # Check quest completion
+        for quest in player.quests:
+            if not quest.completed:
+                # Check if quest conditions are met
+                if quest.name == "Defeat 3 Goblins":
+                    goblin_count = sum(1 for enemy in enemies if enemy.name == "Evil Goblin" and enemy.health <= 0)
+                    if goblin_count >= 3:
+                        quest.complete_quest()
+                elif quest.name == "Retrieve Magic Crystal":
+                    # Simulate a specific quest condition (e.g., find an item)
+                    pass  # Add relevant quest condition checks here
+                elif quest.name == "Explore the Dungeon":
+                    # Simulate another quest condition (e.g., explore certain locations)
+                    pass  # Add relevant quest condition checks here
+    
+    print("\nGame over!")
+    if player.health > 0:
+        print("Congratulations, you completed all quests and defeated all enemies!")
+    else:
+        print("You were defeated. Better luck next time!")
+
+if __name__ == "__main__":
+    main()
