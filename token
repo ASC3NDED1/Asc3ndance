@@ -1,0 +1,23 @@
+import os
+
+def get_api_token():
+    # Retrieve API token from environment variable
+    api_token = os.getenv('MY_API_TOKEN')
+    if not api_token:
+        raise ValueError('API token not found in environment variables.')
+    return api_token
+
+def main():
+    try:
+        api_token = get_api_token()
+        print(f"API Token: {api_token}")
+        # Use the API token in your application logic
+        # For example:
+        # api_client = MyAPIClient(api_token)
+        # response = api_client.get_data()
+        # print(response)
+    except ValueError as e:
+        print(f"Error: {e}")
+
+if __name__ == "__main__":
+    main()
